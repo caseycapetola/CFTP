@@ -3,8 +3,6 @@ public class Pair {
 	int x;
 	int y;
 	double randNum;
-	double posCalc;
-	double negCalc;
 	
 	public Pair(int xcoord, int ycoord, double val) {
 		x = xcoord;

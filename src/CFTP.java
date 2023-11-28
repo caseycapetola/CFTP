@@ -158,9 +158,60 @@ public class CFTP {
 		}
     }
     
+    private static int couple_helper(int index) {
+    	// RESET ENTIRE GRID
+    	diff = GRID_SIZE * GRID_SIZE; // Reset diff calculation
+		for(int i=0; i<GRID_SIZE; i++) {
+			for(int j=0; j<GRID_SIZE; j++) {
+				gridPOS[i][j] = POS;
+				gridNEG[i][j] = NEG;
+				
+			}
+		}
+		
+		// DETERMINE IF WE COUPLE
+		for(int j=index; j<moves.size(); j++) {
+			double flipPosPOS = isingCalculationPos(moves.get(j).x, moves.get(j).y);
+			double flipPosNEG = isingCalculationNeg(moves.get(j).x, moves.get(j).y);
+			coupling(moves.get(j).randNum, flipPosPOS, flipPosNEG, moves.get(j).x, moves.get(j).y);
+		}
+		return diff;
+    }
+    
     // CONDUCT BINARY SEARCH THROUGH "moves" to find exact coupling point
-    private static int binarySearch(int mid_index) {
-    	return 1;
+    private static int binarySearch(int low_index, int high_index) {
+    	if(low_index>high_index) {
+    		System.out.println("ERROR");
+    		return -1;
+    	}
+    	int mid = (low_index + high_index)/2;
+    	
+    	// RESET ENTIRE GRID
+		diff = GRID_SIZE * GRID_SIZE; // Reset diff calculation
+		for(int i=0; i<GRID_SIZE; i++) {
+			for(int j=0; j<GRID_SIZE; j++) {
+				gridPOS[i][j] = POS;
+				gridNEG[i][j] = NEG;
+				
+			}
+		}
+		
+		// DETERMINE IF WE COUPLE
+		for(int j=mid; j<moves.size(); j++) {
+			double flipPosPOS = isingCalculationPos(moves.get(j).x, moves.get(j).y);
+			double flipPosNEG = isingCalculationNeg(moves.get(j).x, moves.get(j).y);
+			coupling(moves.get(j).randNum, flipPosPOS, flipPosNEG, moves.get(j).x, moves.get(j).y);
+		}
+		
+		if(diff != 0) { // If diff != 0, then we need more steps to couple
+			return binarySearch(low_index, mid-1);
+		}
+		else {
+			if(couple_helper(mid+1) != 0) {
+				return mid;
+			}
+			return binarySearch(mid+1, high_index);	
+		}
     }
 	
 	public static void main(String[] args) {
@@ -180,14 +231,11 @@ public class CFTP {
 		int steps = 100;
 		int total = 100;
 		
-		boolean isCoupled = false;
+		boolean isCoupled = false; // Flag to determine if grids have coupled
 		
-		int[][] tempPOS = new int[GRID_SIZE][GRID_SIZE];
-		int[][] tempNEG = new int[GRID_SIZE][GRID_SIZE];
-		
-		// Value to track number of loops to couple:
-		int num_loops = 1;
+		int num_loops = 1; // Value to track number of loops to couple
 		int index;
+		
 		while(!isCoupled) {	
 			// RESET ENTIRE GRID
 			diff = GRID_SIZE * GRID_SIZE; // Reset diff calculation
@@ -226,14 +274,14 @@ public class CFTP {
 				isCoupled = true;
 				
 				// ADD BINARY SEARCH LOGIC TO FIND EXACTLY WHERE WE COUPLE
-				necessary_steps = binarySearch(steps/2);
+				necessary_steps = binarySearch(0, index);
 			}
 			else {
 				steps *= 2;
 				num_loops += 1;
 			}
 		}
-		System.out.println(moves.size() + "..." + necessary_steps);
+		System.out.println(moves.size() + "..." + necessary_steps + "\nNECESSARY STEPS: " + (moves.size()-necessary_steps));
 	}
 
 }
