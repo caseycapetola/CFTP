@@ -6,12 +6,10 @@ public class Pair {
 	double posCalc;
 	double negCalc;
 	
-	public Pair(int xcoord, int ycoord, double val, double posCalc, double negCalc) {
+	public Pair(int xcoord, int ycoord, double val) {
 		x = xcoord;
 		y = ycoord;
 		randNum = val;
-		this.posCalc = posCalc;
-		this.negCalc = negCalc;
 	}
 	
 	// Set x and y coordinates for move

@@ -3,7 +3,7 @@ import java.util.Random;
 
 public class CFTP {
 
-	private static final int GRID_SIZE = 10;
+	private static final int GRID_SIZE = 20;
 	private static final double BETA = 0.5;
     private static final int POS = 1;
     private static final int NEG = -1;
@@ -14,7 +14,7 @@ public class CFTP {
     private static ArrayList<Pair> moves = new ArrayList<Pair>();
     
     
- // Ising Calculation for POS grid
+    // Ising Calculation for POS grid
   	private static double isingCalculationPos(int x, int y) {
       	int numPos = 0;
       	int numNeg = 0;
@@ -118,7 +118,7 @@ public class CFTP {
 				diff--;
 			}
 		}
-		//If flag > flipPosPOS/NEG, set both grids to negative
+		// If flag > flipPosPOS/NEG, set both grids to negative
 		else if(flag>flipPosPOS && flag>flipPosNEG) {
 			// check if the grids agree
 			if (gridPOS[xcoord][ycoord] == gridNEG[xcoord][ycoord]) {
@@ -157,6 +157,11 @@ public class CFTP {
 			}
 		}
     }
+    
+    // CONDUCT BINARY SEARCH THROUGH "moves" to find exact coupling point
+    private static int binarySearch(int mid_index) {
+    	return 1;
+    }
 	
 	public static void main(String[] args) {
 		// Initialize grids to all positive/negative
@@ -168,39 +173,67 @@ public class CFTP {
 			}
 		}
 		
-		int xcoord, ycoord;
+		int xcoord, ycoord, necessary_steps = 0;
 		Random random = new Random();
 		
 		// Each iteration we'll try 100 moves (times 2 for each iteration)
 		int steps = 100;
+		int total = 100;
 		
 		boolean isCoupled = false;
 		
-		while(!isCoupled) {
+		int[][] tempPOS = new int[GRID_SIZE][GRID_SIZE];
+		int[][] tempNEG = new int[GRID_SIZE][GRID_SIZE];
+		
+		// Value to track number of loops to couple:
+		int num_loops = 1;
+		int index;
+		while(!isCoupled) {	
+			// RESET ENTIRE GRID
+			diff = GRID_SIZE * GRID_SIZE; // Reset diff calculation
+			for(int i=0; i<GRID_SIZE; i++) {
+				for(int j=0; j<GRID_SIZE; j++) {
+					gridPOS[i][j] = POS;
+					gridNEG[i][j] = NEG;
+					
+				}
+			}
+			if(num_loops <= 2) {
+				index = 100;
+			}
+			else {
+				index = (int)(Math.pow(2, num_loops-2)*100);
+			}
 			// STEP 1: Iterate over new randomness
-			for(int i=0; i<steps; i++) {
+			for(int i=0; i<index; i++) {
 				xcoord = random.nextInt(GRID_SIZE);
 				ycoord = random.nextInt(GRID_SIZE);
 				double flipPosPOS = isingCalculationPos(xcoord, ycoord);
 				double flipPosNEG = isingCalculationNeg(xcoord, ycoord);
 				double flag = random.nextDouble();
-				moves.add(0, new Pair(xcoord, ycoord, flag, flipPosPOS, flipPosNEG));
+				moves.add(0, new Pair(xcoord, ycoord, flag));
 				coupling(flag, flipPosPOS, flipPosNEG, xcoord, ycoord);
 			}
 			
 			// STEP 2: Iterate over old logic
-			int index = moves.size();
-			for(int j=steps; j<moves.size(); j++) {
-				coupling(moves.get(j).randNum, moves.get(j).posCalc, moves.get(j).negCalc, moves.get(j).x, moves.get(j).y);
+			for(int j=index; j<moves.size(); j++) {
+				double flipPosPOS = isingCalculationPos(moves.get(j).x, moves.get(j).y);
+				double flipPosNEG = isingCalculationNeg(moves.get(j).x, moves.get(j).y);
+				coupling(moves.get(j).randNum, flipPosPOS, flipPosNEG, moves.get(j).x, moves.get(j).y);
 			}
 			
 			if(diff==0) {
 				isCoupled = true;
 				
 				// ADD BINARY SEARCH LOGIC TO FIND EXACTLY WHERE WE COUPLE
+				necessary_steps = binarySearch(steps/2);
+			}
+			else {
+				steps *= 2;
+				num_loops += 1;
 			}
 		}
-		System.out.println(moves.size());
+		System.out.println(moves.size() + "..." + necessary_steps);
 	}
 
 }
