@@ -3,7 +3,7 @@ import java.util.Random;
 
 public class CFTP {
 
-	private static final int GRID_SIZE = 20;
+	private static final int GRID_SIZE = 5;
 	private static final double BETA = 0.5;
     private static final int POS = 1;
     private static final int NEG = -1;
@@ -180,6 +180,7 @@ public class CFTP {
     
     // CONDUCT BINARY SEARCH THROUGH "moves" to find exact coupling point
     private static int binarySearch(int low_index, int high_index) {
+    	System.out.println(low_index + " ... " + high_index);
     	if(low_index>high_index) {
     		System.out.println("ERROR");
     		return -1;
@@ -204,9 +205,22 @@ public class CFTP {
 		}
 		
 		if(diff != 0) { // If diff != 0, then we need more steps to couple
+			if(low_index+1 == high_index) {
+				if(couple_helper(high_index) == 0) {
+					return low_index;
+				}
+				return low_index;
+			}
 			return binarySearch(low_index, mid-1);
 		}
 		else {
+			if(low_index == high_index) {
+				if(couple_helper(low_index) != 0) {
+					System.out.println("NO SOLUTION");
+					return -2;
+				}
+				return low_index;
+			}
 			if(couple_helper(mid+1) != 0) {
 				return mid;
 			}
@@ -226,10 +240,6 @@ public class CFTP {
 		
 		int xcoord, ycoord, necessary_steps = 0;
 		Random random = new Random();
-		
-		// Each iteration we'll try 100 moves (times 2 for each iteration)
-		int steps = 100;
-		int total = 100;
 		
 		boolean isCoupled = false; // Flag to determine if grids have coupled
 		
@@ -277,7 +287,6 @@ public class CFTP {
 				necessary_steps = binarySearch(0, index);
 			}
 			else {
-				steps *= 2;
 				num_loops += 1;
 			}
 		}
