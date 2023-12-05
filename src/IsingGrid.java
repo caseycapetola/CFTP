@@ -62,6 +62,7 @@ public class IsingGrid {
   		return (Math.exp(beta*numPos)/(Math.exp(beta*numPos) + Math.exp(beta*numNeg)));
 	}
 
+	// Reset grid to initial state
 	public void resetGrid(int type) {
 		diff = grid_size*grid_size;
 		if(type==POS) {
@@ -79,6 +80,7 @@ public class IsingGrid {
 		}
 	}
 
+	// Conduct one step of coupling procedure
 	private void coupleStep(IsingGrid grid2, double flag, double flip1, double flip2, int x, int y) {
 		if(flag<=flip1 && flag<=flip2) {
 			// check if grids agree
@@ -123,6 +125,7 @@ public class IsingGrid {
 		}
 	}
 	
+	// Conduct entire coupling procedure; return 0 if coupled, > 0 otherwise
 	public int isCoupled(IsingGrid grid2, ArrayList<Pair> moves, int index) {
 		resetGrid(type);
 		grid2.resetGrid(grid2.type);
