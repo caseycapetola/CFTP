@@ -179,6 +179,7 @@ public class CFTP {
     }
     
     // CONDUCT BINARY SEARCH THROUGH "moves" to find exact coupling point
+    // OPTIMIZE THIS LATER
     private static int binarySearch(int low_index, int high_index) {
     	System.out.println(low_index + " ... " + high_index);
     	if(low_index>high_index) {
@@ -198,11 +199,12 @@ public class CFTP {
 		}
 		
 		// DETERMINE IF WE COUPLE
-		for(int j=mid; j<moves.size(); j++) {
-			double flipPosPOS = isingCalculationPos(moves.get(j).x, moves.get(j).y);
-			double flipPosNEG = isingCalculationNeg(moves.get(j).x, moves.get(j).y);
-			coupling(moves.get(j).randNum, flipPosPOS, flipPosNEG, moves.get(j).x, moves.get(j).y);
-		}
+//		for(int j=mid; j<moves.size(); j++) {
+//			double flipPosPOS = isingCalculationPos(moves.get(j).x, moves.get(j).y);
+//			double flipPosNEG = isingCalculationNeg(moves.get(j).x, moves.get(j).y);
+//			coupling(moves.get(j).randNum, flipPosPOS, flipPosNEG, moves.get(j).x, moves.get(j).y);
+//		}
+		couple_helper(mid);
 		
 		if(diff != 0) { // If diff != 0, then we need more steps to couple
 			if(low_index+1 == high_index) {
@@ -228,6 +230,7 @@ public class CFTP {
 		}
     }
 	
+    
 	public static void main(String[] args) {
 		// Initialize grids to all positive/negative
 		for(int i=0; i<GRID_SIZE; i++) {
@@ -243,8 +246,8 @@ public class CFTP {
 		
 		boolean isCoupled = false; // Flag to determine if grids have coupled
 		
-		int num_loops = 1; // Value to track number of loops to couple
-		int index;
+		int num_loops = 0; // Value to track number of loops to couple
+		int index; // INDEX BY 100 FOR NOW
 		
 		while(!isCoupled) {	
 			// RESET ENTIRE GRID
@@ -263,6 +266,9 @@ public class CFTP {
 				index = (int)(Math.pow(2, num_loops-2)*100);
 			}
 			// STEP 1: Iterate over new randomness
+			
+			// 0, 1, 2, .. 98, 99 -> 99, 98, .., 2, 1, 0
+			ArrayList<Pair> tempMoves = new ArrayList<Pair>();
 			for(int i=0; i<index; i++) {
 				xcoord = random.nextInt(GRID_SIZE);
 				ycoord = random.nextInt(GRID_SIZE);
@@ -272,6 +278,11 @@ public class CFTP {
 				moves.add(0, new Pair(xcoord, ycoord, flag));
 				coupling(flag, flipPosPOS, flipPosNEG, xcoord, ycoord);
 			}
+			
+			// STEP 1.5: Add new randomness to static array of moves
+//			for(int i=tempMoves.size()-1; i>=0; i--) {
+//				moves.add(0, tempMoves.get(i));
+//			}
 			
 			// STEP 2: Iterate over old logic
 			for(int j=index; j<moves.size(); j++) {
@@ -284,12 +295,21 @@ public class CFTP {
 				isCoupled = true;
 				
 				// ADD BINARY SEARCH LOGIC TO FIND EXACTLY WHERE WE COUPLE
-				necessary_steps = binarySearch(0, index);
+//				necessary_steps = binarySearch(0, index);
+				int tempIndex = index;
+				while(tempIndex<moves.size()) {
+					if(couple_helper(tempIndex) == 0) {
+						System.out.println("INDEX: " + tempIndex);
+						tempIndex = moves.size();
+					}
+				}
+				
 			}
 			else {
 				num_loops += 1;
 			}
 		}
+		
 		System.out.println(moves.size() + "..." + necessary_steps + "\nNECESSARY STEPS: " + (moves.size()-necessary_steps));
 	}
 
