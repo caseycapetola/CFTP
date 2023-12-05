@@ -8,309 +8,50 @@ public class CFTP {
     private static final int POS = 1;
     private static final int NEG = -1;
     
-    private static int[][] gridPOS = new int[GRID_SIZE][GRID_SIZE];
-    private static int[][] gridNEG = new int[GRID_SIZE][GRID_SIZE];
-    private static int diff = GRID_SIZE*GRID_SIZE;
     private static ArrayList<Pair> moves = new ArrayList<Pair>();
     
-    
-    // Ising Calculation for POS grid
-  	private static double isingCalculationPos(int x, int y) {
-      	int numPos = 0;
-      	int numNeg = 0;
-      	
-  		// CHECK HORIZONTAL NEIGHBORS
-  		if(y>0) {
-  			if(gridPOS[x][y-1] == POS) {
-  				numPos++;
-  			}
-  			else {
-  				numNeg++;
-  			}
-  		}
-  		if(y<GRID_SIZE-1) {
-  			if(gridPOS[x][y+1] == POS) {
-  				numPos++;
-  			}
-  			else {
-  				numNeg++;
-  			}
-  		}
-  		
-  		// CHECK VERTICAL NEIGHBORS
-  		if(x>0) {
-  			if(gridPOS[x-1][y] == POS) {
-  				numPos++;
-  			}
-  			else {
-  				numNeg++;
-  			}
-  		}
-  		if(x<GRID_SIZE-1) {
-  			if(gridPOS[x+1][y] == POS) {
-  				numPos++;
-  			}
-  			else {
-  				numNeg++;
-  			}
-  		}
-  		
-  		return (Math.exp(BETA*numPos)/(Math.exp(BETA*numPos) + Math.exp(BETA*numNeg)));
-      	
-      }
-  	
-  	// Ising Calculation for NEG grid
-  	private static double isingCalculationNeg(int x, int y) {
-      	int numPos = 0;
-      	int numNeg = 0;
-      	
-  		// CHECK HORIZONTAL NEIGHBORS
-  		if(y>0) {
-  			if(gridNEG[x][y-1] == POS) {
-  				numPos++;
-  			}
-  			else {
-  				numNeg++;
-  			}
-  		}
-  		if(y<GRID_SIZE-1) {
-  			if(gridNEG[x][y+1] == POS) {
-  				numPos++;
-  			}
-  			else {
-  				numNeg++;
-  			}
-  		}
-  		
-  		// CHECK VERTICAL NEIGHBORS
-  		if(x>0) {
-  			if(gridNEG[x-1][y] == POS) {
-  				numPos++;
-  			}
-  			else {
-  				numNeg++;
-  			}
-  		}
-  		if(x<GRID_SIZE-1) {
-  			if(gridNEG[x+1][y] == POS) {
-  				numPos++;
-  			}
-  			else {
-  				numNeg++;
-  			}
-  		}
-  		
-  		return (Math.exp(BETA*numPos)/(Math.exp(BETA*numPos) + Math.exp(BETA*numNeg)));
-      	
-      }
-    
-    public static void coupling(double flag, double flipPosPOS, double flipPosNEG, int xcoord, int ycoord) {
-    	// If flag < flipPosPOS/NEG, set both grids to positive
-		if(flag<=flipPosPOS && flag<=flipPosNEG) {
-			// check if the grids agree
-			if (gridPOS[xcoord][ycoord] == gridNEG[xcoord][ycoord]) {
-				gridPOS[xcoord][ycoord] = POS;
-				gridNEG[xcoord][ycoord] = POS;
-			}
-			else {
-				gridPOS[xcoord][ycoord] = POS;
-				gridNEG[xcoord][ycoord] = POS;
-				diff--;
-			}
-		}
-		// If flag > flipPosPOS/NEG, set both grids to negative
-		else if(flag>flipPosPOS && flag>flipPosNEG) {
-			// check if the grids agree
-			if (gridPOS[xcoord][ycoord] == gridNEG[xcoord][ycoord]) {
-				gridPOS[xcoord][ycoord] = NEG;
-				gridNEG[xcoord][ycoord] = NEG;
-			}
-			else {
-				gridPOS[xcoord][ycoord] = NEG;
-				gridNEG[xcoord][ycoord] = NEG;
-				diff--;
-			}
-		}
-		// If they disagree, set opposite
-		else if(flag<=flipPosPOS && flag>flipPosNEG) {
-			// check if the grids agree
-			if (gridPOS[xcoord][ycoord] == gridNEG[xcoord][ycoord]) {
-				gridPOS[xcoord][ycoord] = POS;
-				gridNEG[xcoord][ycoord] = NEG;
-				diff++;
-			}
-			else {
-				gridPOS[xcoord][ycoord] = POS;
-				gridNEG[xcoord][ycoord] = NEG;
-			}
-		}
-		else {
-			// check if the grids agree
-			if (gridPOS[xcoord][ycoord] == gridNEG[xcoord][ycoord]) {
-				gridPOS[xcoord][ycoord] = NEG;
-				gridNEG[xcoord][ycoord] = POS;
-				diff++;
-			}
-			else {
-				gridPOS[xcoord][ycoord] = NEG;
-				gridNEG[xcoord][ycoord] = POS;
-			}
-		}
-    }
-    
-    private static int couple_helper(int index) {
-    	// RESET ENTIRE GRID
-    	diff = GRID_SIZE * GRID_SIZE; // Reset diff calculation
-		for(int i=0; i<GRID_SIZE; i++) {
-			for(int j=0; j<GRID_SIZE; j++) {
-				gridPOS[i][j] = POS;
-				gridNEG[i][j] = NEG;
-				
-			}
-		}
-		
-		// DETERMINE IF WE COUPLE
-		for(int j=index; j<moves.size(); j++) {
-			double flipPosPOS = isingCalculationPos(moves.get(j).x, moves.get(j).y);
-			double flipPosNEG = isingCalculationNeg(moves.get(j).x, moves.get(j).y);
-			coupling(moves.get(j).randNum, flipPosPOS, flipPosNEG, moves.get(j).x, moves.get(j).y);
-		}
-		return diff;
-    }
-    
-    // CONDUCT BINARY SEARCH THROUGH "moves" to find exact coupling point
-    // OPTIMIZE THIS LATER
-    private static int binarySearch(int low_index, int high_index) {
-    	System.out.println(low_index + " ... " + high_index);
-    	if(low_index>high_index) {
-    		System.out.println("ERROR");
-    		return -1;
-    	}
-    	int mid = (low_index + high_index)/2;
-    	
-    	// RESET ENTIRE GRID
-		diff = GRID_SIZE * GRID_SIZE; // Reset diff calculation
-		for(int i=0; i<GRID_SIZE; i++) {
-			for(int j=0; j<GRID_SIZE; j++) {
-				gridPOS[i][j] = POS;
-				gridNEG[i][j] = NEG;
-				
-			}
-		}
-		
-		// DETERMINE IF WE COUPLE
-//		for(int j=mid; j<moves.size(); j++) {
-//			double flipPosPOS = isingCalculationPos(moves.get(j).x, moves.get(j).y);
-//			double flipPosNEG = isingCalculationNeg(moves.get(j).x, moves.get(j).y);
-//			coupling(moves.get(j).randNum, flipPosPOS, flipPosNEG, moves.get(j).x, moves.get(j).y);
-//		}
-		couple_helper(mid);
-		
-		if(diff != 0) { // If diff != 0, then we need more steps to couple
-			if(low_index+1 == high_index) {
-				if(couple_helper(high_index) == 0) {
-					return low_index;
-				}
-				return low_index;
-			}
-			return binarySearch(low_index, mid-1);
-		}
-		else {
-			if(low_index == high_index) {
-				if(couple_helper(low_index) != 0) {
-					System.out.println("NO SOLUTION");
-					return -2;
-				}
-				return low_index;
-			}
-			if(couple_helper(mid+1) != 0) {
-				return mid;
-			}
-			return binarySearch(mid+1, high_index);	
-		}
-    }
 	
     
 	public static void main(String[] args) {
 		// Initialize grids to all positive/negative
-		for(int i=0; i<GRID_SIZE; i++) {
-			for(int j=0; j<GRID_SIZE; j++) {
-				gridPOS[i][j] = POS;
-				gridNEG[i][j] = NEG;
-				
-			}
-		}
+		IsingGrid posGrid = new IsingGrid(POS, GRID_SIZE, BETA);
+		IsingGrid negGrid = new IsingGrid(NEG, GRID_SIZE, BETA);
 		
-		int xcoord, ycoord, necessary_steps = 0;
+		int xcoord, ycoord, index = 100, necessary_steps = -1; 
+		//int num_loops = 0; -> USED FOR LATER IMPLEMENTATION
 		Random random = new Random();
 		
-		boolean isCoupled = false; // Flag to determine if grids have coupled
+		int coupled = 1;
 		
-		int num_loops = 0; // Value to track number of loops to couple
-		int index; // INDEX BY 100 FOR NOW
-		
-		while(!isCoupled) {	
-			// RESET ENTIRE GRID
-			diff = GRID_SIZE * GRID_SIZE; // Reset diff calculation
-			for(int i=0; i<GRID_SIZE; i++) {
-				for(int j=0; j<GRID_SIZE; j++) {
-					gridPOS[i][j] = POS;
-					gridNEG[i][j] = NEG;
-					
-				}
-			}
-			if(num_loops <= 2) {
-				index = 100;
-			}
-			else {
-				index = (int)(Math.pow(2, num_loops-2)*100);
-			}
-			// STEP 1: Iterate over new randomness
+		while(coupled != 0) {
+			index = 100;
 			
-			// 0, 1, 2, .. 98, 99 -> 99, 98, .., 2, 1, 0
-			ArrayList<Pair> tempMoves = new ArrayList<Pair>();
+			// STEP 1: Iterate over/Add new randomness
 			for(int i=0; i<index; i++) {
 				xcoord = random.nextInt(GRID_SIZE);
 				ycoord = random.nextInt(GRID_SIZE);
-				double flipPosPOS = isingCalculationPos(xcoord, ycoord);
-				double flipPosNEG = isingCalculationNeg(xcoord, ycoord);
 				double flag = random.nextDouble();
 				moves.add(0, new Pair(xcoord, ycoord, flag));
-				coupling(flag, flipPosPOS, flipPosNEG, xcoord, ycoord);
 			}
 			
-			// STEP 1.5: Add new randomness to static array of moves
-//			for(int i=tempMoves.size()-1; i>=0; i--) {
-//				moves.add(0, tempMoves.get(i));
-//			}
+			// STEP 2: Couple over all logic -> Go in reverse direction!
+			coupled = posGrid.isCoupled(negGrid, moves, 0);
 			
-			// STEP 2: Iterate over old logic
-			for(int j=index; j<moves.size(); j++) {
-				double flipPosPOS = isingCalculationPos(moves.get(j).x, moves.get(j).y);
-				double flipPosNEG = isingCalculationNeg(moves.get(j).x, moves.get(j).y);
-				coupling(moves.get(j).randNum, flipPosPOS, flipPosNEG, moves.get(j).x, moves.get(j).y);
-			}
-			
-			if(diff==0) {
-				isCoupled = true;
-				
-				// ADD BINARY SEARCH LOGIC TO FIND EXACTLY WHERE WE COUPLE
-//				necessary_steps = binarySearch(0, index);
-				int tempIndex = index;
-				while(tempIndex<moves.size()) {
-					if(couple_helper(tempIndex) == 0) {
-						System.out.println("INDEX: " + tempIndex);
-						tempIndex = moves.size();
-					}
-				}
-				
-			}
-			else {
-				num_loops += 1;
-			}
+//			num_loops++; -> USED FOR LATER IMPLEMENTATIONS
 		}
 		
-		System.out.println(moves.size() + "..." + necessary_steps + "\nNECESSARY STEPS: " + (moves.size()-necessary_steps));
+		// num_loops*index = total steps
+		// ACTUAL STEPS NEEDED: num_loops*(index-1) <= steps <= num_loops*index
+		for(int x=index-1; x>=0; x--) {
+			if(posGrid.isCoupled(negGrid, moves, x)==0) {
+				System.out.println("COUPLED AT INDEX: index: " + x);
+				necessary_steps = moves.size() - x;
+				x = -1;
+			}
+			
+		}
+				
+		System.out.println("NECESSARY STEPS TO COUPLE: " + necessary_steps);
 	}
 
 }
