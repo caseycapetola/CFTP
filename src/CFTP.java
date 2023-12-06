@@ -10,7 +10,17 @@ public class CFTP {
     
     private static ArrayList<Pair> moves = new ArrayList<Pair>();
     
+	public static int binary_search(int low_index, int high_index, IsingGrid grid1, IsingGrid grid2) {
+		int mid = (low_index+high_index)/2;
+		if(grid1.isCoupled(grid2, moves, mid) == 0) {
+			if(grid1.isCoupled(grid2, moves, mid+1) != 0) {
+				return mid;
+			}
+			return binary_search(mid+1, high_index, grid1, grid2);
+		}
+		return binary_search(low_index, mid, grid1, grid2);
 	
+	}
     
 	public static void main(String[] args) {
 		// Initialize grids to all positive/negative
@@ -50,6 +60,8 @@ public class CFTP {
 			}
 			
 		}
+		int res = binary_search(0, index, posGrid, negGrid);
+		System.out.println("COUPLED (BINARY SEARCH): " + res);
 				
 		System.out.println("NECESSARY STEPS TO COUPLE: " + necessary_steps);
 	}
