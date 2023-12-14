@@ -3,11 +3,11 @@ import java.util.Random;
 
 public class CFTP {
 
-	private static final int GRID_SIZE = 10;
+	private static final int GRID_SIZE = 100;
 	private static final double BETA = 0.5;
     private static final int POS = 1;
     private static final int NEG = -1;
-    private static int STEP_SIZE = 100;
+    private static int STEP_SIZE = 15000;
     
     private static ArrayList<Pair> moves = new ArrayList<Pair>();
     
