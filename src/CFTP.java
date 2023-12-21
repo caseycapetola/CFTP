@@ -7,7 +7,7 @@ public class CFTP {
 	private static final double BETA = 0.5;
     private static final int POS = 1;
     private static final int NEG = -1;
-    private static int STEP_SIZE = 15000;
+    private static int STEP_SIZE = 40000;
     
     private static ArrayList<Pair> moves = new ArrayList<Pair>();
     
@@ -28,7 +28,7 @@ public class CFTP {
 		IsingGrid posGrid = new IsingGrid(POS, GRID_SIZE, BETA);
 		IsingGrid negGrid = new IsingGrid(NEG, GRID_SIZE, BETA);
 		
-		int xcoord, ycoord, index = STEP_SIZE; 
+		int xcoord = 0, ycoord = 0, index = STEP_SIZE; 
 		int num_loops = 0;
 		Random random = new Random();
 		
@@ -41,26 +41,27 @@ public class CFTP {
 			
 			// STEP 1: Iterate over/Add new randomness
 			for(int i=0; i<index; i++) {
-				xcoord = random.nextInt(GRID_SIZE);
-				ycoord = random.nextInt(GRID_SIZE);
 				double flag = random.nextDouble();
 				moves.add(0, new Pair(xcoord, ycoord, flag));
+				
+				// Iterate to our next index
+				xcoord += (ycoord+1)/GRID_SIZE; // Move to next row if we are at end of columns
+				xcoord = xcoord%GRID_SIZE; // Loop back to beginning if reach end of array
+				ycoord = (ycoord+1)%GRID_SIZE; // Move to next column
 			}
 			
 			// STEP 2: Couple over all logic
 			coupled = posGrid.isCoupled(negGrid, moves, 0);
 			
 			num_loops++;
-//			System.out.println("INDEX AT NUMLOOP {"+num_loops+"}: "+index);
 		}
 		
 		
 		int necessary_steps = binary_search(0, index, posGrid, negGrid);
 		System.out.println("MOVES SIZE: " + moves.size());
-		
+
 		System.out.println("COUPLED (BINARY SEARCH): " + necessary_steps);
-				
+
 		System.out.println("NECESSARY STEPS TO COUPLE: " + (moves.size()-necessary_steps));
-//		System.out.println((moves.size()-necessary_steps));
 	}
 }
