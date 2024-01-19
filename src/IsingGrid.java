@@ -2,12 +2,14 @@ import java.util.ArrayList;
 
 public class IsingGrid {
 	private static final int POS = 1;
-    private static final int NEG = -1;
+    private static final int NEG = -1; // Set this to 0 -> more efficient when resetting grid
     private static int diff;
 	int[][] layout;
 	int grid_size;
 	int type;
 	double beta;
+	public long total_time = 0;
+	public long total_loop_time = 0;
 	
 	public IsingGrid(int t, int size, double b) {
 		grid_size = size;
@@ -127,14 +129,21 @@ public class IsingGrid {
 	
 	// Conduct entire coupling procedure; return 0 if coupled, > 0 otherwise
 	public int isCoupled(IsingGrid grid2, ArrayList<Pair> moves, int index) {
+		// TIMER HERE
+		long time = System.currentTimeMillis();
 		resetGrid(type);
 		grid2.resetGrid(grid2.type);
+		long reset_time = System.currentTimeMillis()-time;
+		total_time += reset_time;
 		
+		long loop_time = System.currentTimeMillis();
 		for(int i=index; i<moves.size(); i++) {
 			int x = moves.get(i).x, y = moves.get(i).y;
 			coupleStep(grid2, moves.get(i).randNum, isingCalculation(x, y), grid2.isingCalculation(x, y), x, y);
 		}
-		
+		long loop_reset_time = System.currentTimeMillis()-loop_time;
+		total_loop_time += loop_reset_time;
+//		System.out.println("GRIDDY TIME: " + loop_reset_time);
 		return diff;
 	}
 }
