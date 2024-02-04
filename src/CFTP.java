@@ -7,7 +7,7 @@ public class CFTP {
 	private static final double BETA = 0.5;
     private static final int POS = 1;
     private static final int NEG = -1;
-    private static int STEP_SIZE = 15000;
+    private static int STEP_SIZE = 100;
     
     private static ArrayList<Pair> moves = new ArrayList<Pair>();
     
@@ -28,7 +28,7 @@ public class CFTP {
 		IsingGrid posGrid = new IsingGrid(POS, GRID_SIZE, BETA);
 		IsingGrid negGrid = new IsingGrid(NEG, GRID_SIZE, BETA);
 		
-		int xcoord, ycoord, index = STEP_SIZE; 
+		int xcoord = 0, ycoord = 0, index = STEP_SIZE; 
 		int num_loops = 0;
 		Random random = new Random();
 		
@@ -39,28 +39,43 @@ public class CFTP {
 				index = (STEP_SIZE*(int)(Math.pow(2, num_loops-1)));
 			}
 			
+			
+			boolean even_flag = true;
+			// DECOUPLE THIS FROM WHILE LOOP
 			// STEP 1: Iterate over/Add new randomness
 			for(int i=0; i<index; i++) {
-				xcoord = random.nextInt(GRID_SIZE);
-				ycoord = random.nextInt(GRID_SIZE);
 				double flag = random.nextDouble();
 				moves.add(0, new Pair(xcoord, ycoord, flag));
+				
+				// CHECKERBOARD PATTERN: Do all even coords, then odd
+				xcoord += (ycoord+1)/GRID_SIZE; // Move to next row if we are at end of columns
+				if(xcoord == GRID_SIZE) {
+					even_flag = !even_flag;
+				}
+				xcoord = xcoord%GRID_SIZE; // Loop back to beginning if reach end of array
+				
+				// FOR Y COORDS, keep incrementing until you are at an even/odd coord depending on current pass
+				while(even_flag && ycoord%2!=0) {
+					ycoord = (ycoord=1)%GRID_SIZE; // Move to the next column
+				}
+				while(!even_flag && ycoord %2!=1) {
+					ycoord = (ycoord=1)%GRID_SIZE; // Move to the next column
+				}
 			}
 			
 			// STEP 2: Couple over all logic
 			coupled = posGrid.isCoupled(negGrid, moves, 0);
 			
 			num_loops++;
-//			System.out.println("INDEX AT NUMLOOP {"+num_loops+"}: "+index);
 		}
-		
+
 		
 		int necessary_steps = binary_search(0, index, posGrid, negGrid);
-		System.out.println("MOVES SIZE: " + moves.size());
-		
-		System.out.println("COUPLED (BINARY SEARCH): " + necessary_steps);
-				
+
+
+//		System.out.println("COUPLED (BINARY SEARCH): " + necessary_steps);
+
 		System.out.println("NECESSARY STEPS TO COUPLE: " + (moves.size()-necessary_steps));
-//		System.out.println((moves.size()-necessary_steps));
+	
 	}
 }
