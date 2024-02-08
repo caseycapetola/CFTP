@@ -3,11 +3,11 @@ import java.util.Random;
 
 public class CFTP {
 
-	private static final int GRID_SIZE = 100;
-	private static final double BETA = 0.5;
+	private static final int GRID_SIZE = 15;
+	private static final double BETA = 1;
     private static final int POS = 1;
-    private static final int NEG = -1;
-    private static int STEP_SIZE = 100;
+    private static final int NEG = 0;
+    private static int STEP_SIZE = 150000;
     
     private static ArrayList<Pair> moves = new ArrayList<Pair>();
     
@@ -39,13 +39,19 @@ public class CFTP {
 				index = (STEP_SIZE*(int)(Math.pow(2, num_loops-1)));
 			}
 			
-			
-			boolean even_flag = true;
+			boolean even_flag = true, continue_flag = false;
 			// DECOUPLE THIS FROM WHILE LOOP
 			// STEP 1: Iterate over/Add new randomness
 			for(int i=0; i<index; i++) {
-				double flag = random.nextDouble();
-				moves.add(0, new Pair(xcoord, ycoord, flag));
+//				System.out.println("NEW LOOP");
+				
+				if(!continue_flag) {
+					double flag = random.nextDouble();
+					moves.add(0, new Pair(xcoord, ycoord, flag));
+				}
+				else {
+					continue_flag = false;
+				}
 				
 				// CHECKERBOARD PATTERN: Do all even coords, then odd
 				xcoord += (ycoord+1)/GRID_SIZE; // Move to next row if we are at end of columns
@@ -53,13 +59,13 @@ public class CFTP {
 					even_flag = !even_flag;
 				}
 				xcoord = xcoord%GRID_SIZE; // Loop back to beginning if reach end of array
+				ycoord = (ycoord+1)%GRID_SIZE; // Move to the next column
 				
-				// FOR Y COORDS, keep incrementing until you are at an even/odd coord depending on current pass
-				while(even_flag && ycoord%2!=0) {
-					ycoord = (ycoord=1)%GRID_SIZE; // Move to the next column
+				if(even_flag && ((xcoord+ycoord)%2)!=0) {
+					continue_flag = true;
 				}
-				while(!even_flag && ycoord %2!=1) {
-					ycoord = (ycoord=1)%GRID_SIZE; // Move to the next column
+				if(!even_flag && ((xcoord+ycoord)%2)!=1) {
+					continue_flag = true;
 				}
 			}
 			
