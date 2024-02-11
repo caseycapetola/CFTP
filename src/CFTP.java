@@ -4,7 +4,7 @@ import java.util.Random;
 public class CFTP {
 
 	private static final int GRID_SIZE = 15;
-	private static final double BETA = 1;
+	private static final double BETA = 0.1;
     private static final int POS = 1;
     private static final int NEG = 0;
     private static int STEP_SIZE = 100;
