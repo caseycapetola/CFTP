@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class IsingGrid {
 	private static final int POS = 1;
-    private static final int NEG = -1; // Set this to 0 -> more efficient when resetting grid
+    private static final int NEG = 0; // Set this to 0 -> more efficient when resetting grid
     private static int diff;
 	int[][] layout;
 	int grid_size;

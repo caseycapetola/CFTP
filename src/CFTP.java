@@ -3,10 +3,10 @@ import java.util.Random;
 
 public class CFTP {
 
-	private static final int GRID_SIZE = 100;
-	private static final double BETA = 0.5;
+	private static final int GRID_SIZE = 15;
+	private static final double BETA = 0.9;
     private static final int POS = 1;
-    private static final int NEG = -1;
+    private static final int NEG = 0;
     private static int STEP_SIZE = 100;
     
     private static ArrayList<Pair> moves = new ArrayList<Pair>();
@@ -62,17 +62,17 @@ public class CFTP {
 		}
 //		System.out.println("RESET TIME: " + posGrid.total_time);
 //		System.out.println("GRIDDY TIME: " + posGrid.total_loop_time);
-		System.out.println("COUPLE TIME: " + (System.currentTimeMillis()-time));
+//		System.out.println("COUPLE TIME: " + (System.currentTimeMillis()-time));
 		
 		long binary_time = System.currentTimeMillis();
 		int necessary_steps = binary_search(0, index, posGrid, negGrid);
-		System.out.println("BINARY SEARCH TIME: " + (System.currentTimeMillis()-binary_time));
-		System.out.println("MOVES SIZE: " + moves.size());
+//		System.out.println("BINARY SEARCH TIME: " + (System.currentTimeMillis()-binary_time));
+//		System.out.println("MOVES SIZE: " + moves.size());
 
 //		System.out.println("COUPLED (BINARY SEARCH): " + necessary_steps);
 
 		System.out.println("NECESSARY STEPS TO COUPLE: " + (moves.size()-necessary_steps));
-		System.out.println("TIME: " + (System.currentTimeMillis()-time));
+//		System.out.println("TIME: " + (System.currentTimeMillis()-time));
 	
 	}
 }
